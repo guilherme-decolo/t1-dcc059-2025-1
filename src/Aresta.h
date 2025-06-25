@@ -9,6 +9,7 @@ public:
 
     char id_no_alvo;
     int peso;
+    //test
     
 };
 
