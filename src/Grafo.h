@@ -29,6 +29,7 @@ public:
     vector<char> periferia(); // h 4
     vector<char> vertices_de_articulacao(); // i
 
+    bool ler_arquivo_entrada(const string& nome_arquivo);
 
     int ordem;
     bool in_direcionado;
