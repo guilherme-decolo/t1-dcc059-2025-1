@@ -8,6 +8,12 @@
 #include "No.h"
 #include <iostream>
 #include <vector>
+#include <string>
+#include <queue>   
+#include <map>     
+#include <limits>  
+#include <algorithm>
+#include <unordered_map>
 
 
 using namespace std;
@@ -31,11 +37,16 @@ public:
 
     bool ler_arquivo_entrada(const string& nome_arquivo);
 
+    void busca_profundidade(No* no_atual, map<char, bool>& visitado, vector<char>& nos_alcancaveis);
+
     int ordem;
     bool in_direcionado;
     bool in_ponderado_aresta;
     bool in_ponderado_vertice;
     vector<No*> lista_adj;
+
+    unordered_map<char, No*> mapa_de_nos_por_id; // Cria um mapa de nós que associa um ID para cada nó
+                                                 // Facilita pra quando for ler as arestas
 };
 
 

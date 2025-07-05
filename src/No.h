@@ -9,12 +9,14 @@
 using namespace std;
 class No {
 public:
-    No();
+    No(char id);
     ~No();
 
     char id;
     int peso;
     vector<Aresta*> arestas;
+
+    void AdicionarVizinho(No* vizinho, int peso);
 };
 
 

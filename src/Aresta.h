@@ -2,17 +2,14 @@
 #define ARESTA_H
 
 using namespace std;
+
 class Aresta {
 public:
-    Aresta();
+    Aresta(char id_alvo, int p); 
     ~Aresta();
 
     char id_no_alvo;
     int peso;
-    //test
-    
 };
-
-
 
 #endif //ARESTA_H
