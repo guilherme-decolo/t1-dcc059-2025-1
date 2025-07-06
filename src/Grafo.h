@@ -39,6 +39,8 @@ public:
 
     void busca_profundidade(No* no_atual, map<char, bool>& visitado, vector<char>& nos_alcancaveis);
 
+    void imprimirGrafo(); 
+
     int ordem;
     bool in_direcionado;
     bool in_ponderado_aresta;

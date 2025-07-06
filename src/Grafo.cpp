@@ -208,3 +208,39 @@ vector<char> Grafo::vertices_de_articulacao() {
     cout<<"Metodo nao implementado"<<endl;
     return {};
 }
+
+void Grafo::imprimirGrafo() {
+    cout << "\n--- DETALHES DO GRAFO ---" << endl;
+    cout << "Ordem: " << ordem << endl;
+    cout << "Direcionado: " << (in_direcionado ? "Sim" : "Nao") << endl;  // Operador ternário
+    cout << "Ponderado nas Arestas: " << (in_ponderado_aresta ? "Sim" : "Nao") << endl;
+    cout << "Ponderado nos Vertices: " << (in_ponderado_vertice ? "Sim" : "Nao") << endl;
+
+    cout << "\nLista de adjacência:" << endl;
+    if (lista_adj.empty()) {
+        cout << "Lista Vazia" << endl;
+        return;
+    }
+    cout << "Representaçao: Vertice(Peso do vertice) -> Vizinho(peso da aresta),..." << endl;
+    for (No* no : lista_adj) {
+        cout << no->id;
+
+        if (in_ponderado_vertice) {
+            cout << "(" << no->peso << ")";
+        }
+        cout << " -> ";
+        bool virgula = true;
+        for (Aresta* aresta : no->arestas) {
+            if (!virgula) {
+                cout << ", ";
+            }
+            cout << aresta->id_no_alvo;
+            if (in_ponderado_aresta) {
+                cout << "(" << aresta->peso << ")";
+            }
+            virgula = false;
+        }
+        cout << endl;
+    }
+    cout << "-----------------------------------" << endl;
+}
