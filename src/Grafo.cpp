@@ -160,8 +160,104 @@ vector<char> Grafo::fecho_transitivo_indireto(char id_no) {
 }
 
 vector<char> Grafo::caminho_minimo_dijkstra(char id_no_a, char id_no_b) {
-    cout<<"Metodo nao implementado"<<endl;
-    return {};
+    // Verifica se os nós de origem e destino existem no grafo -------------------------------------------
+    No* no_origem = nullptr;
+    No* no_destino = nullptr;
+    for (No* no : this->lista_adj) {
+        if (no->id == id_no_a) { no_origem = no;}
+        else if (no->id == id_no_b) { no_destino = no;}
+        if (no_origem != nullptr && no_destino != nullptr) { break;}
+    }
+    if (no_origem == nullptr) {
+        cout << "Erro: O no de origem '" << id_no_a << "' nao existe no grafo." << endl;
+        return {};
+    }
+    if (no_destino == nullptr) {
+        cout << "Erro: O no de destino '" << id_no_b << "' nao existe no grafo." << endl;
+        return {};
+    }
+    // ---------------------------------------------------------------------------------------------------
+
+    map<char, int> distancias;      // Armazena as distâncias de cada nó a partir da origem
+    map<char, char> predecessores;  // Armazena os predecessores de cada nó no caminho mais curto
+    map<char, bool> visitados;      // Controle dos nós já visitados {S}
+
+    // Inicializa as distancias como infinito(valor muito alto) para todos os nós.
+    int inf = 100000;
+    for (No* no : this->lista_adj) { 
+        distancias[no->id] = inf;
+        predecessores[no->id] = 0; 
+        visitados[no->id] = false;
+    }
+
+    distancias[id_no_a] = 0;            // Define a distância do nó de origem para ele mesmo como 0.
+
+    for (int count = 0; count < this->ordem; ++count) {
+
+        int menor_distancia = inf;
+        char id_no_j = 0; // Aux para guardar o ID do nó com a menor distância
+
+        for (auto const& par : distancias) {
+            char id = par.first;
+            int dist = par.second;
+
+            if (!visitados[id] && dist < menor_distancia) { // Adicionei a verificação !visitados[id] que estava faltando no seu loop de busca manual
+                menor_distancia = dist;
+                id_no_j = id;
+            }
+        }
+        // Se não encontramos nenhum nó alcançável (id_no_j continua 0), podemos parar.
+        if (id_no_j == 0) {break;}
+
+        // Se o nó com menor distância é o nosso destino, podemos parar antes.
+        if (id_no_j == id_no_b) {break;}
+
+        visitados[id_no_j] = true;
+        No* no_j = nullptr;
+        for (No* no : this->lista_adj) {
+            if (no->id == id_no_j) {
+                no_j = no;
+                break;
+            }
+        }
+        if (no_j == nullptr) { continue; }
+
+        for (Aresta* aresta : no_j->arestas) {
+            char id_no_i = aresta->id_no_alvo;
+            int custo_ji = aresta->peso;
+            int distancias_estrela = distancias[id_no_j] + custo_ji;
+
+            if (distancias_estrela < distancias[id_no_i]) {
+                distancias[id_no_i] = distancias_estrela;
+                predecessores[id_no_i] = id_no_j;
+            }
+        }
+    }
+
+    // Caminho de volta
+    vector<char> caminho;
+    char id_atual = id_no_b;
+
+    if (distancias[id_no_b] == inf) {
+        cout << "Nao existe caminho entre '" << id_no_a << "' e '" << id_no_b << endl;
+        return {};
+    }
+
+    while (id_atual != 0) {
+        caminho.push_back(id_atual);
+        if (id_atual == id_no_a) break;
+        id_atual = predecessores[id_atual];
+    }
+    
+    reverse(caminho.begin(), caminho.end());
+
+    if (caminho.empty() || caminho.front() != id_no_a) {
+         cout << "Nao existe caminho entre '" << id_no_a << "' e '" << id_no_b << endl;
+        return {};
+    }
+    
+    cout << "Caminho minimo encontrado com custo " << distancias[id_no_b] << endl;
+    return caminho;
 }
 
 vector<char> Grafo::caminho_minimo_floyd(char id_no, char id_no_b) {
