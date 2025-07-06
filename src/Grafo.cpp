@@ -260,9 +260,93 @@ vector<char> Grafo::caminho_minimo_dijkstra(char id_no_a, char id_no_b) {
     return caminho;
 }
 
-vector<char> Grafo::caminho_minimo_floyd(char id_no, char id_no_b) {
-    cout<<"Metodo nao implementado"<<endl;
-    return {};
+vector<char> Grafo::caminho_minimo_floyd(char id_no_a, char id_no_b) {
+    // Verifica se os nós de origem e destino existem no grafo -------------------------------------------
+    No* no_origem = nullptr;
+    No* no_destino = nullptr;
+    for (No* no : this->lista_adj) {
+        if (no->id == id_no_a) { no_origem = no;}
+        else if (no->id == id_no_b) { no_destino = no;}
+        if (no_origem != nullptr && no_destino != nullptr) { break;}
+    }
+    if (no_origem == nullptr) {
+        cout << "Erro: O no de origem '" << id_no_a << "' nao existe no grafo." << endl;
+        return {};
+    }
+    if (no_destino == nullptr) {
+        cout << "Erro: O no de destino '" << id_no_b << "' nao existe no grafo." << endl;
+        return {};
+    }
+    // ---------------------------------------------------------------------------------------------------
+    
+    int inf = 100000; // Um valor grande para representar infinito
+
+    map<char, map<char, int>> dist;     // Matriz Distâncias
+    map<char, map<char, char>> pred;    // Matriz Predecessores
+
+    // Inicializa a matriz distamância e predecessores.
+    for (No* no_i : this->lista_adj) {
+        for (No* no_j : this->lista_adj) {
+            char i = no_i->id;
+            char j = no_j->id;
+            if (i == j) {
+                dist[i][j] = 0;
+            } else {
+                dist[i][j] = inf;
+            }
+            pred[i][j] = -1;
+        }
+    }
+
+    for (No* no_atual : this->lista_adj) {
+        for (Aresta* aresta : no_atual->arestas) {
+            char u = no_atual->id;
+            char v = aresta->id_no_alvo;
+            dist[u][v] = aresta->peso;
+            pred[u][v] = u;
+        }
+    }
+
+    for (No* no_k : this->lista_adj) {
+        char k = no_k->id;
+        for (No* no_i : this->lista_adj) {
+            char i = no_i->id;
+            for (No* no_j : this->lista_adj) {
+                char j = no_j->id;
+                if (dist[i][k] != inf && dist[k][j] != inf && dist[i][k] + dist[k][j] < dist[i][j]) {
+                    dist[i][j] = dist[i][k] + dist[k][j];
+                    pred[i][j] = pred[k][j];
+                }
+            }
+        }
+    }
+
+    // Caminho de volta
+    vector<char> caminho;
+
+    if (dist[id_no_a][id_no_b] == inf) {
+        cout << "Nao existe caminho entre '" << id_no_a << "' e '" << id_no_b << endl;
+        return {};
+    }
+
+    char atual = id_no_b;
+    while (atual != -1 && pred[id_no_a][atual] != -1) {
+        caminho.push_back(atual);
+        atual = pred[id_no_a][atual];
+    }
+    
+    if(atual != -1) caminho.push_back(atual);   // Adiciona o nó de origem, que é o último a ser encontrado
+
+    reverse(caminho.begin(), caminho.end());    // Inverte o caminho, pois ele foi construído do destino para a origem
+    
+    // Verificação final para garantir que o caminho é válido
+    if (caminho.empty() || caminho.front() != id_no_a) {
+        cout << "Nao existe caminho entre '" << id_no_a << "' e '" << id_no_b << endl;
+        return {};
+    }
+
+    cout << "Caminho minimo encontrado com custo " << dist[id_no_a][id_no_b] << endl;
+    return caminho;
 }
 
 Grafo * Grafo::arvore_geradora_minima_prim(vector<char> ids_nos) {
