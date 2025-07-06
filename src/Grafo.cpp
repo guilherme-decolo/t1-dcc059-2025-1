@@ -354,9 +354,110 @@ Grafo * Grafo::arvore_geradora_minima_prim(vector<char> ids_nos) {
     return nullptr;
 }
 
+// Funções auxiliares para a Arvore Geradora Mínima Kruskal
+char encontrar_raiz(char no, std::map<char, char>& pai) {
+    if (pai[no] == no) {
+        return no;
+    }
+    pai[no] = encontrar_raiz(pai[no], pai);
+    return pai[no];
+}
+
+void unir_conjuntos(char u, char v, std::map<char, char>& pai) {
+    char raiz_u = encontrar_raiz(u, pai);
+    char raiz_v = encontrar_raiz(v, pai);
+    if (raiz_u != raiz_v) {
+        pai[raiz_u] = raiz_v;
+    }
+}
+
 Grafo * Grafo::arvore_geradora_minima_kruskal(vector<char> ids_nos) {
-    cout<<"Metodo nao implementado"<<endl;
-    return nullptr;
+    if (ids_nos.empty()) {
+        cout << "Erro: O subconjunto de nos nao pode ser vazio." << endl;
+        return nullptr;
+    }
+
+    std::map<int, std::vector<std::pair<char, char>>> arestas_por_peso;
+    std::map<char, std::map<char, bool>> aresta_adicionada;
+
+    for (char id_no : ids_nos) {
+        No* no_atual = mapa_de_nos_por_id[id_no];
+        for (Aresta* aresta : no_atual->arestas) {
+            bool vizinho_no_subgrafo = false;
+            for (char id_vizinho_verificar : ids_nos) {
+                if (aresta->id_no_alvo == id_vizinho_verificar) {
+                    vizinho_no_subgrafo = true;
+                    break;
+                }
+            }
+
+            if (vizinho_no_subgrafo) {
+                char u = id_no;
+                char v = aresta->id_no_alvo;
+                
+                if (u > v) {
+                    char temp = u;
+                    u = v;
+                    v = temp;
+                }
+
+                if (!aresta_adicionada[u][v]) {
+                    arestas_por_peso[aresta->peso].push_back({u, v});
+                    aresta_adicionada[u][v] = true;
+                }
+            }
+        }
+    }
+
+    std::map<char, char> pai;
+    for (char id : ids_nos) {
+        pai[id] = id;
+    }
+
+    Grafo* agm = new Grafo();
+    agm->in_direcionado = false;
+    agm->in_ponderado_aresta = true;
+    agm->ordem = ids_nos.size();
+    for (char id_no : ids_nos) {
+        No* no_novo = new No(id_no);
+        agm->lista_adj.push_back(no_novo);
+        agm->mapa_de_nos_por_id[id_no] = no_novo;
+    }
+
+    int num_arestas_agm = 0;
+    bool arvore_completa = false; 
+
+    for (auto const& par_peso : arestas_por_peso) {
+        int peso = par_peso.first;
+        for (auto const& par_nos : par_peso.second) {
+            char u = par_nos.first;
+            char v = par_nos.second;
+
+            if (encontrar_raiz(u, pai) != encontrar_raiz(v, pai)) {
+                unir_conjuntos(u, v, pai);
+                agm->mapa_de_nos_por_id[u]->AdicionarVizinho(v, peso);
+                agm->mapa_de_nos_por_id[v]->AdicionarVizinho(u, peso);
+                num_arestas_agm++;
+
+                if (num_arestas_agm == ids_nos.size() - 1) {
+                    arvore_completa = true;
+                    break;
+                }
+            }
+        }
+        if (arvore_completa) {
+            break;
+        }
+    }
+
+    if (num_arestas_agm < ids_nos.size() - 1) {
+        cout << "Aviso: Nao foi possivel gerar uma arvore conectada com os nos fornecidos." << endl << endl;
+    }
+    else{
+        agm->imprimirGrafo();
+    }
+
+    return agm;
 }
 
 Grafo * Grafo::arvore_caminhamento_profundidade(char id_no) {
