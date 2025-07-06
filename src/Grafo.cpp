@@ -21,7 +21,7 @@ Grafo::~Grafo() {
     mapa_de_nos_por_id.clear();
 }
 
-Grafo::ler_arquivo_entrada(const string& nome_arquivo) {
+bool Grafo::ler_arquivo_entrada(const string& nome_arquivo) {
   
     ifstream arquivo(nome_arquivo);
     if (!arquivo.is_open()){
@@ -66,6 +66,20 @@ Grafo::ler_arquivo_entrada(const string& nome_arquivo) {
         }
 
         No* no = new No(id);
+
+        if (this->in_ponderado_vertice) {
+            int peso_vertice;
+            if (!(arquivo >> peso_vertice)) { 
+                cout << "Erro: Nao foi possivel ler o peso do vertice " << id << endl;
+                arquivo.close();
+                delete no; 
+                return false;
+            }
+            no->peso = peso_vertice;
+        } else {
+            no->peso = 0;
+        }
+
         lista_adj.push_back(no);
         mapa_de_nos_por_id[id] = no;
     }
