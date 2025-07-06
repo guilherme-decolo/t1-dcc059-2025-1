@@ -16,7 +16,7 @@ public:
     int peso;
     vector<Aresta*> arestas;
 
-    void AdicionarVizinho(No* vizinho, int peso);
+    void AdicionarVizinho(char id_vizinho, int peso);
 };
 
 
