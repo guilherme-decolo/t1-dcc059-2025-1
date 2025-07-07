@@ -592,9 +592,6 @@ Grafo * Grafo::arvore_geradora_minima_kruskal(vector<char> ids_nos) {
     if (num_arestas_agm < ids_nos.size() - 1) {
         cout << "Aviso: Nao foi possivel gerar uma arvore conectada com os nos fornecidos." << endl << endl;
     }
-    else{
-        agm->imprimirGrafo();
-    }
 
     return agm;
 }
@@ -687,11 +684,6 @@ vector<char> Grafo::centro() {
 }
 
 vector<char> Grafo::periferia() {
-    cout<<"Metodo nao implementado"<<endl;
-    return {};
-}
-
-vector<char> Grafo::vertices_de_articulacao() {
     cout<<"Metodo nao implementado"<<endl;
     return {};
 }
