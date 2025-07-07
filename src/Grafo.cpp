@@ -488,9 +488,180 @@ vector<char> Grafo::caminho_minimo_floyd(char id_no_a, char id_no_b) {
     return caminho;
 }
 
-Grafo * Grafo::arvore_geradora_minima_prim(vector<char> ids_nos) {
-    cout<<"Metodo nao implementado"<<endl;
-    return nullptr;
+Grafo* Grafo::arvore_geradora_minima_prim(vector<char> ids_nos) {
+    if (!in_ponderado_aresta) { 
+        cout << "A arvore de Prim so funciona com grafos ponderados nas arestas" << endl;
+        return nullptr;
+    }
+
+    unordered_map<char, No*> nos_subgrafo; // Nós do subconjunto original
+    vector<char> ids_indexados;      // IDs do subconjunto em ordem indexada para equivaler a pseudocodigo
+    unordered_map<char, int> id_para_indice;   // pra usar em prox e custo
+    unordered_map<int, char> indice_para_id;   // usado ao identificar aresta minima, obtem um indice e precisa do char pra adicionar a arvore
+
+    int indice_atual = 0;
+    for (char id : ids_nos) { 
+        No* no_atual = nullptr; 
+
+        // Verifica se o no com ID existe no mapa de nós do grafo principal
+        if (mapa_de_nos_por_id.count(id)) {
+            no_atual = mapa_de_nos_por_id[id];
+        }
+
+        //Adicionando no ao subgrafo e preenchendo mapas e vetor 
+        if (no_atual != nullptr) { 
+            nos_subgrafo[id] = no_atual;
+            ids_indexados.push_back(id); 
+            id_para_indice[id] = indice_atual;
+            indice_para_id[indice_atual] = id;
+            indice_atual++;
+        } else {
+            cout << "Vertice '" << id << "' no subconjunto X nao encontrado no grafo principal" << endl;
+        }
+    }
+
+    if (nos_subgrafo.empty()) {
+        cout << "Subconjunto invalido" << endl;
+        return nullptr;
+    }
+
+    int N = ids_indexados.size();
+    //if (N == 0) return nullptr; -> nem precisa por causa da verificação anterior
+    if (N == 1) { // Arvore = no
+        Grafo* agm_um_no = new Grafo();
+        agm_um_no->ordem = 1;
+        agm_um_no->in_direcionado = false; // tem q ser pra rodar o Prim
+        agm_um_no->in_ponderado_aresta = true; // tem q ser pra rodar o Prim
+        agm_um_no->in_ponderado_vertice = this->in_ponderado_vertice;
+        agm_um_no->lista_adj.push_back(nos_subgrafo[ids_indexados[0]]);
+        agm_um_no->mapa_de_nos_por_id[nos_subgrafo[ids_indexados[0]]->id] = nos_subgrafo[ids_indexados[0]];
+        cout << "Peso total da agm: 0" << endl;
+        return agm_um_no;
+    }
+
+    // Para mais de um no
+    Grafo* agm_grafo = new Grafo();
+    agm_grafo->ordem = N;
+    agm_grafo->in_direcionado = false;
+    agm_grafo->in_ponderado_aresta = true;
+    agm_grafo->in_ponderado_vertice = this->in_ponderado_vertice;
+
+    unordered_map<char, No*> agm_mapa_nos;
+    for (char id : ids_indexados) { //pegando os ids dos nos no subgrafo
+        agm_grafo->lista_adj.push_back(nos_subgrafo[id]);
+        agm_mapa_nos[id] = nos_subgrafo[id];
+    }
+
+    vector<int> prox(N); // Corresponde a 'prox(i)' -> armazena o índice do vértice próximo do vértice i
+    vector<int> custo(N); // Corresponde a 'c(i, prox(i))' -> armazena o peso da aresta que conecta o vértice i ao prox[i]
+
+    // Ver se um nó já foi adicionado à AGM
+    vector<bool> F(N, false); 
+
+    // Definindo no de partida como o primeiro
+    char u_id = ids_indexados[0]; // ID do no 'u'
+
+
+    for (int i = 0; i < N; ++i) {
+        if (i == 0) { 
+            custo[i] = 0; // Custo zero pra adicionar
+            prox[i] = 0; // colocando ele mesmo como proximo
+            F[i] = true; // Presente na AGM
+        } else {
+            custo[i] = numeric_limits<int>::max(); // Custo infinito ->Nao se sabe o caminho mais barato para conectá-los
+            prox[i] = -1; // indica que ainda não tem proximo
+            F[i] = false;
+        }
+    }
+
+    // A partir do nó de partida, atualiza os nos vizinhos
+    No* no_u = nos_subgrafo[u_id];
+    for (Aresta* aresta : no_u->arestas) {
+        char id_vizinho = aresta->id_no_alvo;
+        int peso = aresta->peso;
+
+        // Verificando se o vizinho está no subconjunto
+        if (nos_subgrafo.count(id_vizinho)) {
+            int indice_vizinho = id_para_indice[id_vizinho];
+            // Se o vizinho ainda não está na agm e esta aresta e mais barata que o custo atual
+            if (!F[indice_vizinho] && peso < custo[indice_vizinho]) {
+                custo[indice_vizinho] = peso;
+                prox[indice_vizinho] = 0; // 'u' é o nó mais próximo
+            }
+        }
+    }
+    
+    // Contador para o número de arestas na arvores (n-1 no total)
+    int contador = 0; 
+    int peso_total_arvore = 0; 
+
+    // Enquanto contador n-2
+    while (contador < N - 1) { 
+        // Seja j tal que prox(j) != 0 e c(j,prox(j)) é mínimo.
+        int j_indice = -1;
+        int min_custo = numeric_limits<int>::max(); // custo infinito
+
+        for (int i = 0; i < N; ++i) {
+            // Nó i ainda não está na arvore e tem custo minimo
+            if (!F[i] && custo[i] < min_custo) {
+                min_custo = custo[i];
+                j_indice = i;
+            }
+        }
+
+        if (j_indice == -1) {
+            // Sem no pra conectar
+            cout << "AGM incompleta ou impossivel." << endl;
+            break;
+        }
+        
+        // Marca j como adicionado a arvore
+        F[j_indice] = true;
+        peso_total_arvore += custo[j_indice]; // Adiciona o peso a arvore
+
+        // Adiciona a aresta a arvore
+        // A aresta é entre j e o proximo de j
+        char no_j_id = indice_para_id[j_indice];
+        char no_prox_j_id = indice_para_id[prox[j_indice]];
+
+        No* no_j = agm_mapa_nos[no_j_id];
+        No* no_j_prox = agm_mapa_nos[no_prox_j_id];
+
+        // Adicionar aresta nos dois sentidos
+        no_j->AdicionarVizinho(no_j_prox->id, custo[j_indice]);
+        no_j_prox->AdicionarVizinho(no_j->id, custo[j_indice]);
+
+        contador++;
+
+        // Para i = 1,...,n faça
+        //   Se prox(i) ≠ 0 e c(i,prox(i)) > c(i,j) então
+        //     prox(i) <- j
+        // fim-para
+
+        No* no_j_sub = nos_subgrafo[no_j_id];
+        for (Aresta* aresta_j : no_j_sub->arestas) { // Vizinhos de j
+            char id_vizinho = aresta_j->id_no_alvo;
+
+            // Verifica se o vizinho está no subconjunto e ainda não está na arvoree
+            if (nos_subgrafo.count(id_vizinho) && !F[id_para_indice[id_vizinho]]) {
+                int indice_vizinho = id_para_indice[id_vizinho];
+                // Ver se a aresta (j -> neighbor) é mais barata que a aresta atual mais barata para 'neighbor'
+                if (aresta_j->peso < custo[indice_vizinho]) {
+                    custo[indice_vizinho] = peso;
+                    prox[indice_vizinho] = j_indice; // 'j' é agora o nó mais próximo
+                }
+            }
+        }
+    }
+
+    // Verificação final de conectividade
+    if (N > 1 && contador != N - 1) {
+        cout << "O subgrafo vertice-induzido por X nao e conectado" << endl;
+    }
+
+    cout << "Peso total da arvore geradora minima: " << peso_total_arvore << endl; 
+
+    return agm_grafo; 
 }
 
 // Funções auxiliares para a Arvore Geradora Mínima Kruskal
