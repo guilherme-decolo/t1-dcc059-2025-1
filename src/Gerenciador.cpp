@@ -1,6 +1,6 @@
 #include "Gerenciador.h"
 #include <fstream>
-
+#include <ostream>
 
 void Gerenciador::comandos(Grafo* grafo) {
     cout<<"Digite uma das opcoes abaixo e pressione enter:"<<endl<<endl;
@@ -50,13 +50,18 @@ void Gerenciador::comandos(Grafo* grafo) {
             char id_no_1 = get_id_entrada();
             char id_no_2 = get_id_entrada();
             vector<char> caminho_minimo_dijkstra = grafo->caminho_minimo_dijkstra(id_no_1,id_no_2);
-            cout<<"Metodo de impressao em tela nao implementado"<<endl<<endl;
+            imprimir_vetor_char(caminho_minimo_dijkstra, cout);
 
             if(pergunta_imprimir_arquivo("caminho_minimo_dijkstra.txt")) {
-                cout<<"Metodo de impressao em arquivo nao implementado"<<endl;
+                ofstream outfile("caminho_minimo_dijkstra.txt");
+                if (outfile.is_open()) {
+                    imprimir_vetor_char(caminho_minimo_dijkstra, outfile);
+                    outfile.close();
+                    cout << "Resultado salvo com sucesso." << endl << endl;
+                } else {
+                    cout << "Erro ao abrir arquivo para escrita." << endl << endl;
+                }
             }
-
-
             break;
         }
 
@@ -65,10 +70,17 @@ void Gerenciador::comandos(Grafo* grafo) {
             char id_no_1 = get_id_entrada();
             char id_no_2 = get_id_entrada();
             vector<char> caminho_minimo_floyd = grafo->caminho_minimo_floyd(id_no_1,id_no_2);
-            cout<<"Metodo de impressao em tela nao implementado"<<endl<<endl;
+            imprimir_vetor_char(caminho_minimo_floyd, cout);
 
             if(pergunta_imprimir_arquivo("caminho_minimo_floyd.txt")) {
-                cout<<"Metodo de impressao em arquivo nao implementado"<<endl;
+                ofstream outfile("caminho_minimo_dijkstra.txt");
+                if (outfile.is_open()) {
+                    imprimir_vetor_char(caminho_minimo_floyd, outfile);
+                    outfile.close();
+                    cout << "Resultado salvo com sucesso." << endl << endl;
+                } else {
+                    cout << "Erro ao abrir arquivo para escrita." << endl << endl;
+                }
             }
 
 
@@ -109,10 +121,18 @@ void Gerenciador::comandos(Grafo* grafo) {
 
                 vector<char> ids = get_conjunto_ids(grafo,tam);
                 Grafo* arvore_geradora_minima_kruskal = grafo->arvore_geradora_minima_kruskal(ids);
-                cout<<"Metodo de impressao em tela nao implementado"<<endl<<endl;
+                imprimir_grafo_adj(arvore_geradora_minima_kruskal, cout);
+
 
                 if(pergunta_imprimir_arquivo("agm_kruskal.txt")) {
-                    cout<<"Metodo de impressao em arquivo nao implementado"<<endl;
+                    ofstream outfile("agm_kruskal.txt");
+                    if (outfile.is_open()) {
+                        imprimir_grafo_adj(arvore_geradora_minima_kruskal, outfile);
+                        outfile.close();
+                        cout << "Resultado salvo com sucesso." << endl << endl;
+                    } else {
+                        cout << "Erro ao abrir arquivo para escrita." << endl << endl;
+                    }
                 }
 
                 delete arvore_geradora_minima_kruskal;
@@ -128,10 +148,17 @@ void Gerenciador::comandos(Grafo* grafo) {
 
             char id_no = get_id_entrada();
             Grafo* arvore_caminhamento_profundidade = grafo->arvore_caminhamento_profundidade(id_no);
-            cout<<"Metodo de impressao em tela nao implementado"<<endl<<endl;
+            imprimir_grafo_adj(arvore_caminhamento_profundidade, cout);
 
             if(pergunta_imprimir_arquivo("arvore_caminhamento_profundidade.txt")) {
-                cout<<"Metodo de impressao em arquivo nao implementado"<<endl;
+                ofstream outfile("arvore_caminhamento_profundidade.txt");
+                if (outfile.is_open()) {
+                    imprimir_grafo_adj(arvore_caminhamento_profundidade, outfile);
+                    outfile.close();
+                    cout << "Resultado salvo com sucesso." << endl << endl;
+                } else {
+                    cout << "Erro ao abrir arquivo para escrita." << endl << endl;
+                }
             }
 
             delete arvore_caminhamento_profundidade;
@@ -226,5 +253,30 @@ bool Gerenciador::pergunta_imprimir_arquivo(string nome_arquivo) {
         default:
             cout<<"Resposta invalida"<<endl;
             return pergunta_imprimir_arquivo(nome_arquivo);
+    }
+}
+
+// Imprime um vetor de char no formato: a,b,c
+void Gerenciador::imprimir_vetor_char(const vector<char>& vetor, ostream& saida) {
+    for (size_t i = 0; i < vetor.size(); ++i) {
+        saida << vetor[i];
+        if (i < vetor.size() - 1) {
+            saida << ","; 
+        }
+    }
+    saida << endl;
+}
+
+// Imprime um grafo no formato de lista de adjacências: a: b -> c
+void Gerenciador::imprimir_grafo_adj(Grafo* grafo, ostream& saida) {
+    for (No* no : grafo->lista_adj) {
+        saida << no->id << ": ";
+        for (size_t i = 0; i < no->arestas.size(); ++i) {
+            saida << no->arestas[i]->id_no_alvo;
+            if (i < no->arestas.size() - 1) {
+                saida << " -> ";
+            }
+        }
+        saida << endl;
     }
 }
