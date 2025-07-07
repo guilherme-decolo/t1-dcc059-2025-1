@@ -150,14 +150,153 @@ void Grafo::busca_profundidade(No* no_atual, map<char, bool>& visitado, vector<c
 
 
 vector<char> Grafo::fecho_transitivo_direto(char id_no) {
-    cout<<"Metodo nao implementado"<<endl;
-    return {};
+    // Verificando se o grafo é direcionado
+    if (!in_direcionado) {
+        cout << "Erro: Fecho transitivo direto so funciona paraa grafos direcionados." << endl;
+        return {};
+    }
+
+
+    // Encontrando o nó inicial pelo seu ID usando o mapa de nós
+    No* no_origem = nullptr;
+
+
+    // Verificando se o nó existe no mapa
+    if (mapa_de_nos_por_id.count(id_no)) {
+        no_origem = mapa_de_nos_por_id[id_no]; // Aponta pro nó
+    }
+
+
+    // Verificando se encontrou
+    if (no_origem == nullptr) {
+        cout << "Erro: No inicial '" << id_no << "' nao encontrado no grafo" << endl;
+        return {};
+    }
+
+
+    // Mapa para controlar os nós visitados
+    map<char, bool> visitado;
+
+
+    // Inicializando todos os nos do grafo como nao visitados
+    for (No* node : lista_adj) {
+        visitado[node->id] = false;
+    }
+
+
+    // Armazenando os IDs dos nos alcancaveis
+    vector<char> nos_alcancaveis;
+
+
+    // Usando a função auxiliar pra BUSCA EM PROFUNDIDADE
+    busca_profundidade(no_origem, visitado, nos_alcancaveis);
+
+
+    return nos_alcancaveis;
 }
 
+
 vector<char> Grafo::fecho_transitivo_indireto(char id_no) {
-    cout<<"Metodo nao implementado"<<endl;
-    return {};
+    // Verificando se o grafo é direcionado
+    if (!in_direcionado) {
+        cout << "Erro: Fecho transitivo indireto so funciona paraa grafos direcionados." << endl;
+        return {};
+    }
+
+
+    // Encontrando o nó alvo pelo seu ID usando o mapa de nós
+    No* no_alvo = nullptr;
+
+
+    // Verificando se o nó existe no mapa
+    if (mapa_de_nos_por_id.count(id_no)) {
+        no_alvo = mapa_de_nos_por_id[id_no]; // Aponta para o nó
+    }
+
+
+
+
+    // Verificando se encontrou
+    if (no_alvo == nullptr) {
+        cout << "Erro: No alvo '" << id_no << "' nao encontrado no grafo" << endl;
+        return {};
+    }
+
+
+    // Construindo um grafo invertido
+    // assim facilita pra busca em profundidade achar o caminho indireto
+    Grafo* grafo_invertido = new Grafo();
+    grafo_invertido->ordem = this->ordem;
+    grafo_invertido->in_direcionado = this->in_direcionado;
+    grafo_invertido->in_ponderado_aresta = this->in_ponderado_aresta;
+    grafo_invertido->in_ponderado_vertice = this->in_ponderado_vertice;
+
+
+    //Adicionando nos
+    for (No* no_original : this->lista_adj) {
+        No* no_invertido = new No(no_original->id);
+        if (this->in_ponderado_vertice) {
+            no_invertido->peso = no_original->peso;
+        } else {
+            no_invertido->peso = 0;
+        }
+        grafo_invertido->lista_adj.push_back(no_invertido);
+        grafo_invertido->mapa_de_nos_por_id[no_original->id] = no_invertido;
+    }
+
+
+    // Adicionando arestas invertidas: aresta u -> v vira  v -> u
+    for (No* no_u : this->lista_adj) {
+        for (Aresta* aresta_original : no_u->arestas) {
+            char u = no_u->id;      
+            char v = aresta_original->id_no_alvo;
+            int peso = aresta_original->peso;                
+
+
+            No* no_v = nullptr;
+            no_v = grafo_invertido->mapa_de_nos_por_id[v];
+
+
+            no_v->AdicionarVizinho(u, peso);
+        }
+    }
+
+
+    // Mapa para controlar os nós visitados
+    map<char, bool> visitado;
+
+
+    // Inicializando todos os nos do grafo como nao visitados
+    for (No* no_invertido : grafo_invertido->lista_adj) {
+        visitado[no_invertido->id] = false;
+    }
+
+
+    // Armazenando os IDs dos nos alcancaveis
+    vector<char> nos_alcancaveis;
+
+
+    // Usando a função auxiliar pra BUSCA EM PROFUNDIDADE a partir do no alvo
+    // -> que é o com ID passado por parâmetro
+    grafo_invertido->busca_profundidade(grafo_invertido->mapa_de_nos_por_id[id_no], visitado, nos_alcancaveis);
+
+
+
+
+    delete grafo_invertido;
+
+
+    return nos_alcancaveis;
 }
+
+
+
+
+
+
+
+
+
 
 vector<char> Grafo::caminho_minimo_dijkstra(char id_no_a, char id_no_b) {
     // Verifica se os nós de origem e destino existem no grafo -------------------------------------------
