@@ -647,7 +647,7 @@ Grafo* Grafo::arvore_geradora_minima_prim(vector<char> ids_nos) {
                 int indice_vizinho = id_para_indice[id_vizinho];
                 // Ver se a aresta (j -> neighbor) é mais barata que a aresta atual mais barata para 'neighbor'
                 if (aresta_j->peso < custo[indice_vizinho]) {
-                    custo[indice_vizinho] = peso;
+                    custo[indice_vizinho] = aresta_j->peso;
                     prox[indice_vizinho] = j_indice; // 'j' é agora o nó mais próximo
                 }
             }
