@@ -38,6 +38,7 @@ public:
     bool ler_arquivo_entrada(const string& nome_arquivo);
 
     void busca_profundidade(No* no_atual, map<char, bool>& visitado, vector<char>& nos_alcancaveis);
+    void aux_camainhamento_profundidade(char id_atual, map<char, bool>& visitados, vector<char>& nos_da_arvore, vector<pair<char, char>>& arestas_da_arvore);
 
     void imprimirGrafo(); 
 

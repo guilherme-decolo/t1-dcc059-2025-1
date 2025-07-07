@@ -599,9 +599,76 @@ Grafo * Grafo::arvore_geradora_minima_kruskal(vector<char> ids_nos) {
     return agm;
 }
 
+void Grafo::aux_camainhamento_profundidade(char id_atual, map<char, bool>& visitados, vector<char>& nos_da_arvore, vector<pair<char, char>>& arestas_da_arvore) {
+    
+    // Marca o nó atual como visitado e o adiciona à lista de nós da árvore
+    visitados[id_atual] = true;
+    nos_da_arvore.push_back(id_atual);
+
+    No* no_atual = mapa_de_nos_por_id[id_atual];
+
+    for (Aresta* aresta : no_atual->arestas) {
+        char id_vizinho = aresta->id_no_alvo;
+        
+        if (!visitados[id_vizinho]) {
+            arestas_da_arvore.push_back({id_atual, id_vizinho});
+            aux_camainhamento_profundidade(id_vizinho, visitados, nos_da_arvore, arestas_da_arvore);
+        }
+    }
+}
 Grafo * Grafo::arvore_caminhamento_profundidade(char id_no) {
-    cout<<"Metodo nao implementado"<<endl;
-    return nullptr;
+    // Verifica se o nó de início existe
+    if (mapa_de_nos_por_id.find(id_no) == mapa_de_nos_por_id.end()) {
+        cout << "Erro: O no de inicio '" << id_no << "' nao existe no grafo." << endl;
+        return nullptr;
+    }
+
+    map<char, bool> visitados;
+    for (auto const& par : mapa_de_nos_por_id) {
+        visitados[par.first] = false;
+    }
+    
+    vector<char> nos_da_arvore;
+    vector<pair<char, char>> arestas_da_arvore;
+
+    aux_camainhamento_profundidade(id_no, visitados, nos_da_arvore, arestas_da_arvore);
+
+    Grafo* arvore_profundidade = new Grafo();
+    arvore_profundidade->in_direcionado = this->in_direcionado;
+    arvore_profundidade->in_ponderado_aresta = this->in_ponderado_aresta;
+    arvore_profundidade->ordem = nos_da_arvore.size();
+
+    for (char id_no : nos_da_arvore) {
+        int peso_no = mapa_de_nos_por_id[id_no]->peso;
+        No* no_novo = new No(id_no);
+        no_novo->peso = peso_no;
+        
+        arvore_profundidade->lista_adj.push_back(no_novo);
+        arvore_profundidade->mapa_de_nos_por_id[id_no] = no_novo;
+    }
+
+    for (const auto& par_aresta : arestas_da_arvore) {
+        char u = par_aresta.first;
+        char v = par_aresta.second;
+        
+        int peso_aresta = 1; 
+        if (this->in_ponderado_aresta) {
+            for (Aresta* aresta_original : mapa_de_nos_por_id[u]->arestas) {
+                if (aresta_original->id_no_alvo == v) {
+                    peso_aresta = aresta_original->peso;
+                    break;
+                }
+            }
+        }
+        
+        arvore_profundidade->mapa_de_nos_por_id[u]->AdicionarVizinho(v, peso_aresta);
+        if (!arvore_profundidade->in_direcionado) {
+            arvore_profundidade->mapa_de_nos_por_id[v]->AdicionarVizinho(u, peso_aresta);
+        }
+    }
+    
+    cout << "Arvore de caminhamento em profundidade gerada a partir do no '" << id_no << endl;
+    return arvore_profundidade;
 }
 
 int Grafo::raio() {
