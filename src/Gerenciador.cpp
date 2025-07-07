@@ -123,7 +123,6 @@ void Gerenciador::comandos(Grafo* grafo) {
                 Grafo* arvore_geradora_minima_kruskal = grafo->arvore_geradora_minima_kruskal(ids);
                 imprimir_grafo_adj(arvore_geradora_minima_kruskal, cout);
 
-
                 if(pergunta_imprimir_arquivo("agm_kruskal.txt")) {
                     ofstream outfile("agm_kruskal.txt");
                     if (outfile.is_open()) {
@@ -166,21 +165,14 @@ void Gerenciador::comandos(Grafo* grafo) {
         }
 
         case 'h': {
-            vector<char> articulacao = grafo->vertices_de_articulacao();
+            int raio = grafo->raio();
+            int diametro = grafo->diametro();
+            vector<char> centro = grafo->centro();
+            vector<char> periferia = grafo->periferia();
+
             cout<<"Metodo de impressao em tela nao implementado"<<endl<<endl;
 
-            if(pergunta_imprimir_arquivo("arvore_caminhamento_profundidade.txt")) {
-                cout<<"Metodo de impressao em arquivo nao implementado"<<endl;
-            }
-
-            break;
-        }
-        case 'i': {
-
-            vector<char> articulacao = grafo->vertices_de_articulacao();
-            cout<<"Metodo de impressao em tela nao implementado"<<endl<<endl;
-
-            if(pergunta_imprimir_arquivo("arvore_caminhamento_profundidade.txt")) {
+            if(pergunta_imprimir_arquivo("raio_diametro_centro_periferia.txt")) {
                 cout<<"Metodo de impressao em arquivo nao implementado"<<endl;
             }
 
