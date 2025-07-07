@@ -859,7 +859,7 @@ vector<char> Grafo::periferia() {
     return {};
 }
 
-void Grafo::imprimirGrafo() {
+/*void Grafo::imprimirGrafo() {
     cout << "\n--- DETALHES DO GRAFO ---" << endl;
     cout << "Ordem: " << ordem << endl;
     cout << "Direcionado: " << (in_direcionado ? "Sim" : "Nao") << endl;  // Operador ternário
@@ -893,4 +893,4 @@ void Grafo::imprimirGrafo() {
         cout << endl;
     }
     cout << "-----------------------------------" << endl;
-}
+}*/

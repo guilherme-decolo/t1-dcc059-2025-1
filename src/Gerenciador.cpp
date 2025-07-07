@@ -59,7 +59,8 @@ void Gerenciador::comandos(Grafo* grafo) {
         }
 
         case 'c': {
-
+            
+            cout << "Digite primeiro a origem e pressione ENTER e apos digite o destino" << endl;
             char id_no_1 = get_id_entrada();
             char id_no_2 = get_id_entrada();
             vector<char> caminho_minimo_dijkstra = grafo->caminho_minimo_dijkstra(id_no_1,id_no_2);
@@ -80,13 +81,14 @@ void Gerenciador::comandos(Grafo* grafo) {
 
         case 'd': {
 
+            cout << "Digite primeiro a origem e pressione ENTER e apos digite o destino" << endl;
             char id_no_1 = get_id_entrada();
             char id_no_2 = get_id_entrada();
             vector<char> caminho_minimo_floyd = grafo->caminho_minimo_floyd(id_no_1,id_no_2);
             imprimir_vetor_char(caminho_minimo_floyd, cout);
 
             if(pergunta_imprimir_arquivo("caminho_minimo_floyd.txt")) {
-                ofstream outfile("caminho_minimo_dijkstra.txt");
+                ofstream outfile("caminho_minimo_floyd.txt");
                 if (outfile.is_open()) {
                     imprimir_vetor_char(caminho_minimo_floyd, outfile);
                     outfile.close();

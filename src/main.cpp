@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 
     cout << "Carregando grafo do arquivo: " << argv[1] << endl;
 
-    grafo->imprimirGrafo();
+    //grafo->imprimirGrafo();
 
     Gerenciador::comandos(grafo); 
 
