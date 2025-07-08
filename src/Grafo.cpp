@@ -971,11 +971,11 @@ int Grafo::raio()
             if (nos1 != nos2)
             {
                 // numero arestas = caminho - 1
-                aux_size = caminho_minimo_dijkstra(nos1.first, nos2.first).size() - 1;
-                excentricidade_no = max_element(aux_size, excentricidade_no);
+                aux_size = (int)caminho_minimo_dijkstra(nos1.first, nos2.first).size() - 1;
+                excentricidade_no = max(aux_size, excentricidade_no);
             }
         }
-        raio_grafo = min_element(excentricidade_no, raio_grafo);
+        raio_grafo = min(excentricidade_no, raio_grafo);
     }
     cout << "Raio do grafo: " << raio_grafo << endl;
     return raio_grafo;
@@ -983,9 +983,9 @@ int Grafo::raio()
 
 int Grafo::diametro()
 {
-    int diametro_grafo = this->ordem; // diametro do grafo
-    int excentricidade_no = 0;        // excentricidade de um nó
-    int aux_size;                     // guarda o tamanho de uma iteração de Dijstra
+    int diametro_grafo = 0;    // diametro do grafo
+    int excentricidade_no = 0; // excentricidade de um nó
+    int aux_size;              // guarda o tamanho de uma iteração de Dijstra
     // loop duplo para calcular o caminho mínimo entre 2 nós distintos
     for (auto const &nos1 : mapa_de_nos_por_id)
     {
@@ -995,10 +995,10 @@ int Grafo::diametro()
             {
                 // numero arestas = caminho - 1
                 aux_size = caminho_minimo_dijkstra(nos1.first, nos2.first).size() - 1;
-                excentricidade_no = max_element(aux_size, excentricidade_no);
+                excentricidade_no = max(aux_size, excentricidade_no);
             }
         }
-        diametro_grafo = max_element(excentricidade_no, diametro_grafo);
+        diametro_grafo = max(excentricidade_no, diametro_grafo);
     }
     cout << "Diametro do grafo: " << diametro_grafo << endl;
     return diametro_grafo;
