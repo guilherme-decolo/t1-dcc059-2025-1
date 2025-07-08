@@ -265,7 +265,22 @@ void Gerenciador::comandos(Grafo *grafo)
 
         if (pergunta_imprimir_arquivo("raio_diametro_centro_periferia.txt"))
         {
-            cout << "Metodo de impressao em arquivo nao implementado" << endl;
+            ofstream outfile("raio_diametro_centro_periferia.txt");
+            if (outfile.is_open())
+            {
+                imprimir_inteiro(raio, outfile);
+                imprimir_inteiro(diametro, outfile);
+                imprimir_vetor_char(centro, outfile);
+                imprimir_vetor_char(periferia, outfile);
+                outfile.close();
+                cout << "Resultado salvo com sucesso." << endl
+                     << endl;
+            }
+            else
+            {
+                cout << "Erro ao abrir arquivo para escrita." << endl
+                     << endl;
+            }
         }
 
         break;
@@ -363,6 +378,13 @@ void Gerenciador::imprimir_vetor_char(const vector<char> &vetor, ostream &saida)
             saida << ",";
         }
     }
+    saida << endl;
+}
+
+// Imprime um inteiro
+void Gerenciador::imprimir_inteiro(const int &num, ostream &saida)
+{
+    saida << num;
     saida << endl;
 }
 

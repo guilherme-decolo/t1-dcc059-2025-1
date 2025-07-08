@@ -994,7 +994,7 @@ int Grafo::diametro()
             if (nos1 != nos2)
             {
                 // numero arestas = caminho - 1
-                aux_size = caminho_minimo_dijkstra(nos1.first, nos2.first).size() - 1;
+                aux_size = (int)caminho_minimo_dijkstra(nos1.first, nos2.first).size() - 1;
                 excentricidade_no = max(aux_size, excentricidade_no);
             }
         }
