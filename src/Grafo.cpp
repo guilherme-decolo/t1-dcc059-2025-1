@@ -1006,14 +1006,66 @@ int Grafo::diametro()
 
 vector<char> Grafo::centro()
 {
-    cout << "Metodo nao implementado" << endl;
-    return {};
+    int raio_grafo = raio();   // raio do grafo
+    vector<char> centro_nos;   // vértices centrais
+    int excentricidade_no = 0; // excentricidade de um nó
+    int aux_size;              // guarda o tamanho de uma iteração de Dijstra
+    // loop duplo para calcular o caminho mínimo entre 2 nós distintos
+    for (auto const &nos1 : mapa_de_nos_por_id)
+    {
+        for (auto const &nos2 : mapa_de_nos_por_id)
+        {
+            if (nos1 != nos2)
+            {
+                // numero arestas = caminho - 1
+                aux_size = (int)caminho_minimo_dijkstra(nos1.first, nos2.first).size() - 1;
+                excentricidade_no = max(aux_size, excentricidade_no);
+            }
+        }
+        if (excentricidade_no == raio_grafo)
+        {
+            centro_nos.push_back(nos1.first);
+        }
+    }
+    cout << "Vértices do centro: " << endl;
+    for (auto i : centro_nos)
+    {
+        cout << i << " ";
+    }
+    cout << endl;
+    return centro_nos;
 }
 
 vector<char> Grafo::periferia()
 {
-    cout << "Metodo nao implementado" << endl;
-    return {};
+    int diametro_grafo = diametro(); // raio do grafo
+    vector<char> periferia_nos;      // vértices centrais
+    int excentricidade_no = 0;       // excentricidade de um nó
+    int aux_size;                    // guarda o tamanho de uma iteração de Dijstra
+    // loop duplo para calcular o caminho mínimo entre 2 nós distintos
+    for (auto const &nos1 : mapa_de_nos_por_id)
+    {
+        for (auto const &nos2 : mapa_de_nos_por_id)
+        {
+            if (nos1 != nos2)
+            {
+                // numero arestas = caminho - 1
+                aux_size = (int)caminho_minimo_dijkstra(nos1.first, nos2.first).size() - 1;
+                excentricidade_no = max(aux_size, excentricidade_no);
+            }
+        }
+        if (excentricidade_no == diametro_grafo)
+        {
+            periferia_nos.push_back(nos1.first);
+        }
+    }
+    cout << "Vértices da periferia: " << endl;
+    for (auto i : periferia_nos)
+    {
+        cout << i << " ";
+    }
+    cout << endl;
+    return periferia_nos;
 }
 
 /*void Grafo::imprimirGrafo() {
