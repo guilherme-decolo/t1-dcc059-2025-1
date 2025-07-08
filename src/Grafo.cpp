@@ -963,7 +963,7 @@ int Grafo::raio()
     int raio_grafo = this->ordem; // raio do grafo
     int excentricidade_no = 0;    // excentricidade de um nó
     int aux_size;                 // guarda o tamanho de uma iteração de Dijstra
-    // loop duplo para calcular o caminho mínimo entre 2 nós distintos
+    // loop duplo para calcular o caminho mínimo entre 2 nós distintos, para todos os pares de nós
     for (auto const &nos1 : mapa_de_nos_por_id)
     {
         for (auto const &nos2 : mapa_de_nos_por_id)
@@ -975,9 +975,9 @@ int Grafo::raio()
                 excentricidade_no = max(aux_size, excentricidade_no);
             }
         }
+        // avaliando se a excentricidade é mínima
         raio_grafo = min(excentricidade_no, raio_grafo);
     }
-    cout << "Raio do grafo: " << raio_grafo << endl;
     return raio_grafo;
 }
 
@@ -986,7 +986,7 @@ int Grafo::diametro()
     int diametro_grafo = 0;    // diametro do grafo
     int excentricidade_no = 0; // excentricidade de um nó
     int aux_size;              // guarda o tamanho de uma iteração de Dijstra
-    // loop duplo para calcular o caminho mínimo entre 2 nós distintos
+    // loop duplo para calcular o caminho mínimo entre 2 nós distintos, para todos os pares de nós
     for (auto const &nos1 : mapa_de_nos_por_id)
     {
         for (auto const &nos2 : mapa_de_nos_por_id)
@@ -998,9 +998,9 @@ int Grafo::diametro()
                 excentricidade_no = max(aux_size, excentricidade_no);
             }
         }
+        // avaliando se a excentricidade é máxima
         diametro_grafo = max(excentricidade_no, diametro_grafo);
     }
-    cout << "Diametro do grafo: " << diametro_grafo << endl;
     return diametro_grafo;
 }
 
@@ -1010,7 +1010,7 @@ vector<char> Grafo::centro()
     vector<char> centro_nos;   // vértices centrais
     int excentricidade_no = 0; // excentricidade de um nó
     int aux_size;              // guarda o tamanho de uma iteração de Dijstra
-    // loop duplo para calcular o caminho mínimo entre 2 nós distintos
+    // loop duplo para calcular o caminho mínimo entre 2 nós distintos, para todos os pares de nós
     for (auto const &nos1 : mapa_de_nos_por_id)
     {
         for (auto const &nos2 : mapa_de_nos_por_id)
@@ -1022,27 +1022,22 @@ vector<char> Grafo::centro()
                 excentricidade_no = max(aux_size, excentricidade_no);
             }
         }
+        // se vértice for central, é salvo no vetor
         if (excentricidade_no == raio_grafo)
         {
             centro_nos.push_back(nos1.first);
         }
     }
-    cout << "Vértices do centro: " << endl;
-    for (auto i : centro_nos)
-    {
-        cout << i << " ";
-    }
-    cout << endl;
     return centro_nos;
 }
 
 vector<char> Grafo::periferia()
 {
-    int diametro_grafo = diametro(); // raio do grafo
-    vector<char> periferia_nos;      // vértices centrais
+    int diametro_grafo = diametro(); // diametro do grafo
+    vector<char> periferia_nos;      // vértices periféricos
     int excentricidade_no = 0;       // excentricidade de um nó
     int aux_size;                    // guarda o tamanho de uma iteração de Dijstra
-    // loop duplo para calcular o caminho mínimo entre 2 nós distintos
+    // loop duplo para calcular o caminho mínimo entre 2 nós distintos, para todos os pares de nós
     for (auto const &nos1 : mapa_de_nos_por_id)
     {
         for (auto const &nos2 : mapa_de_nos_por_id)
@@ -1054,17 +1049,12 @@ vector<char> Grafo::periferia()
                 excentricidade_no = max(aux_size, excentricidade_no);
             }
         }
+        // se vértice for periférico, é salvo no vetor
         if (excentricidade_no == diametro_grafo)
         {
             periferia_nos.push_back(nos1.first);
         }
     }
-    cout << "Vértices da periferia: " << endl;
-    for (auto i : periferia_nos)
-    {
-        cout << i << " ";
-    }
-    cout << endl;
     return periferia_nos;
 }
 
