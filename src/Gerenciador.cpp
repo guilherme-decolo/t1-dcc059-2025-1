@@ -248,20 +248,22 @@ void Gerenciador::comandos(Grafo *grafo)
         vector<char> centro = grafo->centro();
         vector<char> periferia = grafo->periferia();
 
+        cout << endl;
         cout << "Raio do grafo: " << raio << endl;
         cout << "Diametro do grafo: " << diametro << endl;
-        cout << "Vértices do centro: " << endl;
+        cout << "Vértices do centro: ";
         for (auto i : centro)
         {
             cout << i << " ";
         }
         cout << endl;
-        cout << "Vértices da periferia: " << endl;
+        cout << "Vértices da periferia: ";
         for (auto i : periferia)
         {
             cout << i << " ";
         }
-        cout << endl;
+        cout << endl
+             << endl;
 
         if (pergunta_imprimir_arquivo("raio_diametro_centro_periferia.txt"))
         {

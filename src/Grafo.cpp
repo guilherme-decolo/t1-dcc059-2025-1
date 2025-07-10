@@ -972,6 +972,7 @@ int Grafo::raio()
             {
                 // numero arestas = caminho - 1
                 aux_size = (int)caminho_minimo_dijkstra(nos1.first, nos2.first).size() - 1;
+                cout << "\033[A\33[2K\r";
                 excentricidade_no = max(aux_size, excentricidade_no);
             }
         }
@@ -995,6 +996,7 @@ int Grafo::diametro()
             {
                 // numero arestas = caminho - 1
                 aux_size = (int)caminho_minimo_dijkstra(nos1.first, nos2.first).size() - 1;
+                cout << "\033[A\33[2K\r";
                 excentricidade_no = max(aux_size, excentricidade_no);
             }
         }
@@ -1019,6 +1021,7 @@ vector<char> Grafo::centro()
             {
                 // numero arestas = caminho - 1
                 aux_size = (int)caminho_minimo_dijkstra(nos1.first, nos2.first).size() - 1;
+                cout << "\033[A\33[2K\r";
                 excentricidade_no = max(aux_size, excentricidade_no);
             }
         }
@@ -1046,6 +1049,7 @@ vector<char> Grafo::periferia()
             {
                 // numero arestas = caminho - 1
                 aux_size = (int)caminho_minimo_dijkstra(nos1.first, nos2.first).size() - 1;
+                cout << "\033[A\33[2K\r";
                 excentricidade_no = max(aux_size, excentricidade_no);
             }
         }
