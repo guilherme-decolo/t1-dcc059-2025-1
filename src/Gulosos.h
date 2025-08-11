@@ -37,7 +37,7 @@ private:
     bool eh_conectado(const set<char>& nos);
     
     // DFS adaptada para verificar a conectividade em um subconjunto de nós
-    void dfs_subgrafo(char id_no, const set<char>& nos, set<char>& visitados);
+    void busca_profundidade(char id_no, const set<char>& nos, set<char>& visitados);
 };
 
 #endif // GULOSOS_H
