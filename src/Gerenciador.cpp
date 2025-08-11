@@ -1,4 +1,5 @@
 #include "Gerenciador.h"
+#include "Gulosos.h"
 #include <fstream>
 #include <ostream>
 
@@ -14,7 +15,13 @@ void Gerenciador::comandos(Grafo *grafo)
     cout << "(f) Arvore Geradora Minima (Algoritmo de Kruskal);" << endl;
     cout << "(g) Arvore de caminhamento em profundidade;" << endl;
     cout << "(h) Raio, diametro, centro e periferia do grafo;" << endl;
+    //=================NOVO===================
+    cout << "(i) Conjunto Dominante - Guloso;" << endl;
+    cout << "(j) Conjunto Dominante - Guloso Randomizado Adaptativo;" << endl;
+    cout << "(k) Conjunto Dominante - Guloso Randomizado Adaptativo Reativo;" << endl;
+    //=================NOVO===================
     cout << "(0) Sair;" << endl
+    
          << endl;
 
     char resp;
@@ -287,6 +294,62 @@ void Gerenciador::comandos(Grafo *grafo)
 
         break;
     }
+
+
+//=================================================NOVO=========================================================
+//==============================================TRABALHO 2======================================================
+    case 'i':
+    {
+        cout << "Executando Algoritmo Guloso para Conjunto Dominante Conectado..." << endl;
+        Gulosos gulosos(grafo); 
+        vector<char> D = gulosos.guloso();
+
+        cout << "Tamanho do Conjunto Dominante: " << D.size() << endl;
+        cout << "Nós no conjunto: ";
+        imprimir_vetor_char(D, cout);
+        break;
+    }
+
+    case 'j':
+    {
+        cout << "Executando Guloso Randomizado Adaptativo para Conjunto Dominante Conectado..." << endl;
+        int iteracoes;
+        double alfa;
+        cout << "Digite o numero de iteracoes: ";
+        cin >> iteracoes;
+        cout << "Digite o valor de alfa: ";
+        cin >> alfa;
+
+        Gulosos gulosos(grafo);
+        vector<char> D = gulosos.g_rand_adapt(iteracoes, alfa);
+
+        cout << "Tamanho do Conjunto Dominante encontrado: " << D.size() << endl;
+        cout << "Nos no conjunto: ";
+        imprimir_vetor_char(D, cout);
+        break;
+    }
+
+    case 'k':
+    {
+        cout << "Executando Guloso Randomizado Adaptativo Reativo para Conjunto Dominante Conectado..." << endl;
+        int iteracoes;
+        cout << "Digite o numero de iteracoes: ";
+        cin >> iteracoes;
+
+        // VETOR DE ALFAS PRE-DEFINIDO
+        vector<double> alfas = {0.1, 0.2, 0.3, 0.4, 0.5}; 
+
+        Gulosos gulosos(grafo);
+        vector<char> D = gulosos.g_rand_adapt_reativo(iteracoes, alfas);
+
+        cout << "Tamanho do Conjunto Dominante encontrado: " << D.size() << endl;
+        cout << "Nos no conjunto: ";
+        imprimir_vetor_char(D, cout);
+        break;
+    }
+
+//==============================================================================================================
+//==============================================================================================================
 
     case '0':
     {
