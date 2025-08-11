@@ -84,7 +84,7 @@ vector<char> Gulosos::g_rand_adapt_reativo(int max_iteracoes, const vector<doubl
         pontuacoes_alfa[alfa_atual] += D_candidato.size();
         contagens_alfa[alfa_atual]++;
 
-        // COLOCANDO O ALGORITMO PRA REVISAR OS ALFAS A CADA 5 ITERACOES
+        // COLOCANDO O ALGORITMO PRA REVISAR OS ALFAS A CADA 5 ITERACOES E MUDAR AS PROBABILIDADES DE CADA
         if (i > 0 && i % 5 == 0) {
             double soma_inversos_media = 0;
             vector<double> q(alfas.size(), 0.0);
@@ -92,8 +92,11 @@ vector<char> Gulosos::g_rand_adapt_reativo(int max_iteracoes, const vector<doubl
             for (size_t j = 0; j < alfas.size(); ++j) {
                 double alfa = alfas[j];
                 if (contagens_alfa.count(alfa) && contagens_alfa[alfa] > 0) {
-                    double media = pontuacoes_alfa[alfa] / contagens_alfa[alfa];
-                    q[j] = 1.0 / media; // Inverso da média (soluções menores são melhores)
+                    //CALCULANDO OS DESEMPENHOS
+                    double media = pontuacoes_alfa[alfa] / contagens_alfa[alfa]; //QUANTO MENOR, MELHOR - 
+                                                                                 //OU SEJA, GEROU SOLUCOES COM TAMANHO MENOR
+
+                    q[j] = 1.0 / media; //INVERSO DA MEDIA PRA FICAR MELHOR DE CALCULAR A PROBABILIDADE
                     soma_inversos_media += q[j];
                 }
             }
@@ -111,32 +114,40 @@ vector<char> Gulosos::g_rand_adapt_reativo(int max_iteracoes, const vector<doubl
 
 set<char> Gulosos::construir_conjunto_dominante(double alfa) {
     set<char> conjunto_dominante;
-    map<char, int> status;
-    int nos_brancos = grafo->ordem;
+    map<char, int> status; //MAPA PARA COR DE CADA NÓ
+    int nos_brancos = grafo->ordem; // DE INICIO TODOS NÓS SAO NAO DOMINADOS
 
+    // DEFININDO TODOS COMO BRANCOS
     for (auto const& par : grafo->mapa_de_nos_por_id) {
         status[par.first] = BRANCO;
-    }
+    } 
 
     random_device rd;
     mt19937 gen(rd());
 
     while (nos_brancos > 0) {
-        map<char, int> poder_dominancia;
+        map<char, int> poder_dominancia; //MAPA PRA GUARDAR O NUMERO DE NOS BRANCOS LIGADOS A CADA NO
         int poder_maximo = 0;
 
+        //PARA CADA NO
         for (auto const& par : grafo->mapa_de_nos_por_id) {
             char id_no = par.first;
             if (conjunto_dominante.find(id_no) == conjunto_dominante.end()) {
                 int poder = 0;
+
+                // PODER DE DOMINANCIA CONSIDERA O PROPRIO NO TB
                 if (status[id_no] == BRANCO) {
                     poder++;
                 }
+
+                // AQUI CONSIDERA OS VIZINHOS
                 for (Aresta* aresta : par.second->arestas) {
                     if (status[aresta->id_no_alvo] == BRANCO) {
                         poder++;
                     }
                 }
+
+                //ATUALIZA QUAL O PODER MAXIMO
                 poder_dominancia[id_no] = poder;
                 if (poder > poder_maximo) {
                     poder_maximo = poder;
@@ -144,25 +155,33 @@ set<char> Gulosos::construir_conjunto_dominante(double alfa) {
             }
         }
 
-        vector<char> rcl; // Lista de Candidatos Restrita
-        double limiar = static_cast<double>(poder_maximo) * (1.0 - alfa);
+        //CRIANDO LISTA DE CANDIDATOS
+        vector<char> LC; // LISTA DE CANDIDATOS
+        double limiar = static_cast<double>(poder_maximo) * (1.0 - alfa); //ESTABELECE O VALOR MINIMO PRA ENTRAR NA LISTAS
+
+        //ENTAO ENTRA NA LISTA QUEM TIVER PODER DE DOMINANCIA MAIOR QUE O LIMIAR
         for (auto const& par : poder_dominancia) {
             if (static_cast<double>(par.second) >= limiar) {
-                rcl.push_back(par.first);
+                LC.push_back(par.first);
             }
         }
 
-        if (rcl.empty()) break;
+        if (LC.empty()) break;
 
-        uniform_int_distribution<> dist(0, rcl.size() - 1);
-        char id_escolhido = rcl[dist(gen)];
+
+        //SORTEANDO UM VALOR
+        uniform_int_distribution<> dist(0, LC.size() - 1);
+        char id_escolhido = LC[dist(gen)];
         conjunto_dominante.insert(id_escolhido);
 
+
+        //ATUALIZANDO A COR DOS NOS DO GRAFOS
         if (status[id_escolhido] == BRANCO) {
             nos_brancos--;
         }
         status[id_escolhido] = PRETO;
-
+            
+            //CONFERINDO OS VIZINHOS - SENDO BRANCO SE TORNA CINZA
         No* no_escolhido = grafo->mapa_de_nos_por_id[id_escolhido];
         for (Aresta* aresta : no_escolhido->arestas) {
             if (status[aresta->id_no_alvo] == BRANCO) {
@@ -174,15 +193,21 @@ set<char> Gulosos::construir_conjunto_dominante(double alfa) {
     return conjunto_dominante;
 }
 
+
+//FUNCAO PRA CONECTAR O CONJUNTO DOMINANTE QUE NAO SEJA CONECTADO
 void Gulosos::conectar_componentes(set<char>& conjunto_dominante) {
     while (!eh_conectado(conjunto_dominante)) {
-        bool no_adicionado = false;
+        bool no_adicionado = false; //PRA SABER SE ALGUM NO FOI ADICIONADO NA ITERACAO ATUAL -> CASO NAO SEJA, FINALIZA
+        // ANALISANDO TODOS NOS DE D
         for (char id_u : conjunto_dominante) {
             No* no_u = grafo->mapa_de_nos_por_id[id_u];
+            // ANALISANDO TODOS OS VIZNHOS DO NO ATUAL
             for (Aresta* aresta : no_u->arestas) {
                 char id_v = aresta->id_no_alvo;
-                if (conjunto_dominante.find(id_v) == conjunto_dominante.end()) {
-                    conjunto_dominante.insert(id_v);
+                if (conjunto_dominante.find(id_v) == conjunto_dominante.end())// VERIFICA SE O NO VIZINHO NAO FAZ PARTE DA SOLUCAO,
+                                                                              //  ASSIM PODE FAZER UMA NOVA CONEXAO
+                {
+                    conjunto_dominante.insert(id_v);//ADIOCIONA O NO A SOLUCAO
                     no_adicionado = true;
                     goto proxima_iteracao;
                 }
@@ -193,24 +218,31 @@ void Gulosos::conectar_componentes(set<char>& conjunto_dominante) {
     }
 }
 
+//FUNCAO PRA CONFERIR CONECTIVIDADE
 bool Gulosos::eh_conectado(const set<char>& nos) {
+    //PRA CASO DE GRAFO VAZIO OU COM UM NO
     if (nos.empty() || nos.size() == 1) {
         return true;
     }
+
     set<char> visitados;
+    //PEGANDO UM NO DE INICIO PARA A BUSCA EM PRFUNDIDADE
     char id_inicio = *nos.begin();
-    dfs_subgrafo(id_inicio, nos, visitados);
-    return visitados.size() == nos.size();
+    //FAZ A BUSCA EM PROFUNDIDADE
+    busca_profundidade(id_inicio, nos, visitados);
+    return visitados.size() == nos.size(); //SE TIVER CONECTADO VAI TER PASSADO POR TODOS NOS
+                                           //ASSIM, VISITADOS TERIA O MESMO TAMANHO DO CONJUNTO
 }
 
-void Gulosos::dfs_subgrafo(char id_no, const set<char>& nos, set<char>& visitados) {
-    visitados.insert(id_no);
+void Gulosos::busca_profundidade(char id_no, const set<char>& nos, set<char>& visitados) {
+    visitados.insert(id_no);// MARCA O NO INICIAL COMO VISITADO
     No* no_u = grafo->mapa_de_nos_por_id[id_no];
 
     for (Aresta* aresta : no_u->arestas) {
         char id_v = aresta->id_no_alvo;
+        //CONFERINDO SE O NO PERTENCE AO SUBCONJUNTO E SE JA NAO FOI VISITADO
         if (nos.count(id_v) && visitados.find(id_v) == visitados.end()) {
-            dfs_subgrafo(id_v, nos, visitados);
+            busca_profundidade(id_v, nos, visitados);
         }
     }
 }
